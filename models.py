@@ -33,9 +33,9 @@ class Atividades(Base):
     nome = Column(String(80))
     pessoa_id = Column(Integer, ForeignKey('pessoas.id'))
     pessoa = relationship("Pessoas")  # É utilizado para declarar que existe uma relação com a tabela (classe) Pessoas
-    
+
     def __repr__(self):
-        return f'<Pessoas {self.nome}>'
+        return f'<Atividades {self.nome}>'
 
     def save(self):
         db_session.add(self)
