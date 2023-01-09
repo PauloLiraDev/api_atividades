@@ -1,11 +1,23 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
-from models import Pessoas, Atividades
+from models import Pessoas, Atividades, Usuarios
+from flask_httpauth import HTTPBasicAuth
+
+auth = HTTPBasicAuth()
 app = Flask(__name__)
 api = Api(app)
 
 
+
+@auth.verify_password
+def verificacao(login, senha):
+    if not (login, senha):
+        return False
+    return Usuarios.query.filter_by(login=login, senha=senha).first()
+
+
 class Pessoa(Resource):
+    @auth.login_required
     def get(self, nome):
         try:
             pessoa = Pessoas.query.filter_by(nome=nome).first()
@@ -42,6 +54,7 @@ class Pessoa(Resource):
 
 
 class ListaPessoas(Resource):
+    @auth.login_required
     def get(self):
         pessoas = Pessoas.query.all()
         response = [{'id': i.id, 'nome': i.nome, 'idade': i.idade} for i in pessoas]  # dict comprehension
@@ -64,6 +77,7 @@ class Atividade(Resource):
         atividades = Atividades.query.filter_by(pessoa_id=pessoa.id)
         responsive = {pessoa.nome: [i.nome for i in atividades]}
         return responsive
+
     def put(self, id):
         pass
 
